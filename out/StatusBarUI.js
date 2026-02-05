@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusBarUI = void 0;
 const vscode = __importStar(require("vscode"));
 const constants_1 = require("./constants");
+const utils_1 = require("./utils");
 /**
  * Manages the status bar items for the Pomodoro timer
  * Layout: │  ▰▰▰▱▱▱▱▱▱▱  •  24:59  ▶/⏸/■  │
@@ -72,9 +73,9 @@ class StatusBarUI {
         this.dotItem.command = undefined;
         this.rightBorder.command = undefined;
         // Clickable items
-        this.timerItem.command = 'pomodoro.toggle';
-        this.buttonItem.command = 'pomodoro.showMenu';
-        this.stopItem.command = 'pomodoro.stop';
+        this.timerItem.command = "pomodoro.toggle";
+        this.buttonItem.command = "pomodoro.showMenu";
+        this.stopItem.command = "pomodoro.stop";
         // Initialize with idle state
         this.showIdle();
     }
@@ -82,41 +83,41 @@ class StatusBarUI {
      * Update the status bar display
      */
     update(state, remainingMs, totalMs, sessionType) {
-        if (state === 'idle') {
+        if (state === "idle") {
             this.showIdle();
             return;
         }
         // Calculate progress (0 = just started, 1 = complete)
         const elapsed = totalMs - remainingMs;
         const progress = totalMs > 0 ? elapsed / totalMs : 0;
-        const progressBar = (0, constants_1.generateProgressBar)(progress);
-        const timeText = (0, constants_1.formatTime)(remainingMs);
+        const progressBar = (0, utils_1.generateProgressBar)(progress);
+        const timeText = (0, utils_1.formatTime)(remainingMs);
         // Set text for each item
         this.leftBorder.text = constants_1.SEPARATOR_LEFT;
         this.progressItem.text = ` ${progressBar} `;
-        this.dotItem.text = '•';
+        this.dotItem.text = "•";
         this.timerItem.text = ` ${timeText} `;
         // Button shows pause when running, play when paused
-        if (state === 'paused') {
-            this.buttonItem.text = ' ▶ '; // Play to resume
-            this.buttonItem.tooltip = 'Resume session';
-            this.buttonItem.command = 'pomodoro.toggle';
+        if (state === "paused") {
+            this.buttonItem.text = " ▶ "; // Play to resume
+            this.buttonItem.tooltip = "Resume grind";
+            this.buttonItem.command = "pomodoro.toggle";
         }
         else {
-            this.buttonItem.text = ' ⏸ '; // Pause when running
-            this.buttonItem.tooltip = 'Pause session';
-            this.buttonItem.command = 'pomodoro.toggle';
+            this.buttonItem.text = " ⏸ "; // Pause when running
+            this.buttonItem.tooltip = "Pause grind";
+            this.buttonItem.command = "pomodoro.toggle";
         }
         // Stop button always visible when timer is active
-        this.stopItem.text = ' ■ ';
-        this.stopItem.tooltip = 'Stop session';
-        this.stopItem.command = 'pomodoro.stop';
+        this.stopItem.text = " ■ ";
+        this.stopItem.tooltip = "Stop grind";
+        this.stopItem.command = "pomodoro.stop";
         this.rightBorder.text = constants_1.SEPARATOR_RIGHT;
         // Apply theming based on state
         this.applyTheme(state, sessionType);
         // Set tooltips
         this.progressItem.tooltip = this.getTooltip(state, sessionType);
-        this.timerItem.tooltip = `${timeText} remaining - Click to ${state === 'running' ? 'pause' : 'resume'}`;
+        this.timerItem.tooltip = `${timeText} remaining - Click to ${state === "running" ? "pause" : "resume"}`;
         this.show();
     }
     /**
@@ -127,17 +128,17 @@ class StatusBarUI {
         this.leftBorder.text = constants_1.SEPARATOR_LEFT;
         this.leftBorder.backgroundColor = undefined;
         this.progressItem.text = ` ${emptyBar} `;
-        this.progressItem.tooltip = 'Pomodoro Timer';
+        this.progressItem.tooltip = "Pomodoro Timer";
         this.progressItem.backgroundColor = undefined;
-        this.dotItem.text = '•';
+        this.dotItem.text = "•";
         this.dotItem.backgroundColor = undefined;
-        this.timerItem.text = ' --:-- ';
-        this.timerItem.tooltip = 'Click to start';
+        this.timerItem.text = " --:-- ";
+        this.timerItem.tooltip = "Click to start";
         this.timerItem.backgroundColor = undefined;
-        this.timerItem.command = 'pomodoro.showMenu';
-        this.buttonItem.text = ' ▶ ';
-        this.buttonItem.tooltip = 'Start Pomodoro';
-        this.buttonItem.command = 'pomodoro.showMenu';
+        this.timerItem.command = "pomodoro.showMenu";
+        this.buttonItem.text = " ▶ ";
+        this.buttonItem.tooltip = "Start Pomodoro";
+        this.buttonItem.command = "pomodoro.showMenu";
         this.buttonItem.backgroundColor = undefined;
         // Hide stop button in idle state
         this.stopItem.hide();
@@ -158,14 +159,14 @@ class StatusBarUI {
     getTooltip(state, sessionType) {
         const sessionLabel = this.getSessionLabel(sessionType);
         switch (state) {
-            case 'running':
+            case "running":
                 return `${sessionLabel} in progress`;
-            case 'paused':
+            case "paused":
                 return `${sessionLabel} paused`;
-            case 'break':
+            case "break":
                 return `${sessionLabel}`;
             default:
-                return 'Pomodoro Timer';
+                return "Pomodoro Timer";
         }
     }
     /**
@@ -173,19 +174,19 @@ class StatusBarUI {
      */
     getSessionLabel(sessionType) {
         switch (sessionType) {
-            case 'work':
-                return 'Work session';
-            case 'shortBreak':
-                return 'Short break';
-            case 'longBreak':
-                return 'Long break';
+            case "work":
+                return "Work session";
+            case "shortBreak":
+                return "Short break";
+            case "longBreak":
+                return "Long break";
             default:
-                return 'Session';
+                return "Session";
         }
     }
     /**
      * Apply theme colors based on state
-     * - Green (remote background) for active work sessions
+     * - color (remote background) for active work sessions
      * - Warning/prominent background for breaks
      * - No background when paused or idle
      */
@@ -199,19 +200,19 @@ class StatusBarUI {
         this.stopItem.backgroundColor = undefined;
         this.rightBorder.backgroundColor = undefined;
         // Only apply background to the timer text
-        if (state === 'running') {
-            if (sessionType === 'work') {
-                // Green for active work session
-                this.timerItem.backgroundColor = new vscode.ThemeColor('statusBarItem.remoteBackground');
+        if (state === "running") {
+            if (sessionType === "work") {
+                // color for active work session
+                this.timerItem.backgroundColor = new vscode.ThemeColor("statusBarItem.remoteBackground");
             }
             else {
                 // Break session (short or long) - warning/orange color
-                this.timerItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+                this.timerItem.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
             }
         }
-        else if (state === 'break') {
+        else if (state === "break") {
             // Break state - warning/orange color
-            this.timerItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+            this.timerItem.backgroundColor = new vscode.ThemeColor("statusBarItem.warningBackground");
         }
         // Paused and idle states have no background
     }

@@ -35,9 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TimerEngine = void 0;
 const vscode = __importStar(require("vscode"));
-const types_1 = require("./types");
 const constants_1 = require("./constants");
 const sound_1 = require("./sound");
+const utils_1 = require("./utils");
 /**
  * Core timer engine managing state, persistence, and the update loop
  * Uses timestamp-based timing to prevent drift and survive reloads
@@ -50,7 +50,7 @@ class TimerEngine {
     constructor(context, statusBarUI) {
         this.context = context;
         this.statusBarUI = statusBarUI;
-        this.session = { ...types_1.DEFAULT_SESSION };
+        this.session = { ...constants_1.DEFAULT_SESSION };
     }
     /**
      * Get current timer state
@@ -74,12 +74,12 @@ class TimerEngine {
      * Get configuration from VS Code settings
      */
     getConfig() {
-        const config = vscode.workspace.getConfiguration('pomodoro');
+        const config = vscode.workspace.getConfiguration("pomodoro");
         return {
-            workDuration: config.get('workDuration', constants_1.DEFAULT_WORK_DURATION),
-            shortBreakDuration: config.get('shortBreakDuration', constants_1.DEFAULT_SHORT_BREAK_DURATION),
-            longBreakDuration: config.get('longBreakDuration', constants_1.DEFAULT_LONG_BREAK_DURATION),
-            sessionsBeforeLongBreak: config.get('sessionsBeforeLongBreak', constants_1.DEFAULT_SESSIONS_BEFORE_LONG_BREAK),
+            workDuration: config.get("workDuration", constants_1.DEFAULT_WORK_DURATION),
+            shortBreakDuration: config.get("shortBreakDuration", constants_1.DEFAULT_SHORT_BREAK_DURATION),
+            longBreakDuration: config.get("longBreakDuration", constants_1.DEFAULT_LONG_BREAK_DURATION),
+            sessionsBeforeLongBreak: config.get("sessionsBeforeLongBreak", constants_1.DEFAULT_SESSIONS_BEFORE_LONG_BREAK),
         };
     }
     /**
@@ -97,12 +97,12 @@ class TimerEngine {
         const saved = this.context.globalState.get(constants_1.STORAGE_KEY);
         if (!saved) {
             // No saved session, start fresh
-            this.session = { ...types_1.DEFAULT_SESSION };
+            this.session = { ...constants_1.DEFAULT_SESSION };
             this.statusBarUI.showIdle();
             return;
         }
         this.session = { ...saved };
-        if (this.session.state === 'running' && this.session.expectedEndTime) {
+        if (this.session.state === "running" && this.session.expectedEndTime) {
             const now = Date.now();
             if (now >= this.session.expectedEndTime) {
                 // Sleep scenario: expected end time has passed
@@ -115,11 +115,11 @@ class TimerEngine {
                 this.updateUI();
             }
         }
-        else if (this.session.state === 'paused') {
+        else if (this.session.state === "paused") {
             // Paused session - just update UI
             this.updateUI();
         }
-        else if (this.session.state === 'break' && this.session.expectedEndTime) {
+        else if (this.session.state === "break" && this.session.expectedEndTime) {
             const now = Date.now();
             if (now >= this.session.expectedEndTime) {
                 // Break ended while away
@@ -148,13 +148,13 @@ class TimerEngine {
      * @param minutes - Duration in minutes
      */
     startWithDuration(minutes) {
-        const duration = (0, constants_1.minutesToMs)(minutes);
+        const duration = (0, utils_1.minutesToMs)(minutes);
         this.session = {
-            state: 'running',
+            state: "running",
             expectedEndTime: Date.now() + duration,
             remainingTimeOnPause: null,
             totalDuration: duration,
-            sessionType: 'work',
+            sessionType: "work",
             completedSessions: this.session.completedSessions,
         };
         this.persist();
@@ -168,12 +168,12 @@ class TimerEngine {
     async startCustom() {
         const config = this.getConfig();
         const input = await vscode.window.showInputBox({
-            prompt: 'Enter Pomodoro duration in minutes',
+            prompt: "Enter Pomodoro duration in minutes",
             value: config.workDuration.toString(),
             validateInput: (value) => {
                 const num = parseInt(value, 10);
                 if (isNaN(num) || num <= 0 || num > 180) {
-                    return 'Please enter a number between 1 and 180';
+                    return "Please enter a number between 1 and 180";
                 }
                 return null;
             },
@@ -187,11 +187,11 @@ class TimerEngine {
      * Pause the current session
      */
     pause() {
-        if (this.session.state !== 'running' || !this.session.expectedEndTime) {
+        if (this.session.state !== "running" || !this.session.expectedEndTime) {
             return;
         }
         const remaining = this.session.expectedEndTime - Date.now();
-        this.session.state = 'paused';
+        this.session.state = "paused";
         this.session.remainingTimeOnPause = Math.max(0, remaining);
         this.session.expectedEndTime = null;
         this.persist();
@@ -202,11 +202,12 @@ class TimerEngine {
      * Resume a paused session
      */
     resume() {
-        if (this.session.state !== 'paused' || !this.session.remainingTimeOnPause) {
+        if (this.session.state !== "paused" || !this.session.remainingTimeOnPause) {
             return;
         }
-        this.session.state = 'running';
-        this.session.expectedEndTime = Date.now() + this.session.remainingTimeOnPause;
+        this.session.state = "running";
+        this.session.expectedEndTime =
+            Date.now() + this.session.remainingTimeOnPause;
         this.session.remainingTimeOnPause = null;
         this.persist();
         this.startUpdateLoop();
@@ -217,16 +218,16 @@ class TimerEngine {
      */
     toggle() {
         switch (this.session.state) {
-            case 'idle':
+            case "idle":
                 this.start();
                 break;
-            case 'running':
+            case "running":
                 this.pause();
                 break;
-            case 'paused':
+            case "paused":
                 this.resume();
                 break;
-            case 'break':
+            case "break":
                 // During break, toggle skips to next work session
                 this.skip();
                 break;
@@ -237,7 +238,7 @@ class TimerEngine {
      * Used when clicking the idle status bar
      */
     async showMenu() {
-        if (this.session.state !== 'idle') {
+        if (this.session.state !== "idle") {
             // If not idle, just toggle
             this.toggle();
             return;
@@ -247,22 +248,22 @@ class TimerEngine {
         const selection = await vscode.window.showQuickPick([
             {
                 label: `$(play) Start (${defaultDuration} min)`,
-                description: 'Start with default duration',
-                action: 'default',
+                description: "Start with default duration",
+                action: "default",
             },
             {
-                label: '$(edit) Custom duration...',
-                description: 'Choose your own duration',
-                action: 'custom',
+                label: "$(edit) Custom duration...",
+                description: "Choose your own duration",
+                action: "custom",
             },
         ], {
-            placeHolder: 'Start a Pomodoro session',
+            placeHolder: "Start a Pomodoro session",
         });
         if (selection) {
-            if (selection.action === 'default') {
+            if (selection.action === "default") {
                 this.start();
             }
-            else if (selection.action === 'custom') {
+            else if (selection.action === "custom") {
                 await this.startCustom();
             }
         }
@@ -271,11 +272,12 @@ class TimerEngine {
      * Skip the current session (work or break)
      */
     skip() {
-        if (this.session.state === 'break') {
+        if (this.session.state === "break") {
             // Skip break, go to idle
             this.reset();
         }
-        else if (this.session.state === 'running' || this.session.state === 'paused') {
+        else if (this.session.state === "running" ||
+            this.session.state === "paused") {
             // Skip work session, start break
             this.handleSessionComplete();
         }
@@ -285,18 +287,18 @@ class TimerEngine {
      * Does not trigger break or count as completed
      */
     stop() {
-        if (this.session.state === 'idle') {
+        if (this.session.state === "idle") {
             return;
         }
         this.stopUpdateLoop();
         (0, sound_1.playCancelSound)();
         this.session = {
-            ...types_1.DEFAULT_SESSION,
+            ...constants_1.DEFAULT_SESSION,
             completedSessions: this.session.completedSessions,
         };
         this.persist();
         this.statusBarUI.showIdle();
-        vscode.window.showInformationMessage('Pomodoro session stopped.');
+        vscode.window.showInformationMessage("Pomodoro session stopped.");
     }
     /**
      * Reset to idle state
@@ -304,7 +306,7 @@ class TimerEngine {
     reset() {
         this.stopUpdateLoop();
         this.session = {
-            ...types_1.DEFAULT_SESSION,
+            ...constants_1.DEFAULT_SESSION,
             completedSessions: this.session.completedSessions,
         };
         this.persist();
@@ -320,19 +322,19 @@ class TimerEngine {
         const newCompletedSessions = this.session.completedSessions + 1;
         // Determine break type
         const isLongBreak = newCompletedSessions % config.sessionsBeforeLongBreak === 0;
-        const breakType = isLongBreak ? 'longBreak' : 'shortBreak';
+        const breakType = isLongBreak ? "longBreak" : "shortBreak";
         const breakDuration = isLongBreak
-            ? (0, constants_1.minutesToMs)(config.longBreakDuration)
-            : (0, constants_1.minutesToMs)(config.shortBreakDuration);
+            ? (0, utils_1.minutesToMs)(config.longBreakDuration)
+            : (0, utils_1.minutesToMs)(config.shortBreakDuration);
         // Show notification
-        const breakLabel = isLongBreak ? 'long break' : 'short break';
+        const breakLabel = isLongBreak ? "long break" : "short break";
         vscode.window
-            .showInformationMessage(`Pomodoro complete! Time for a ${breakLabel} (${isLongBreak ? config.longBreakDuration : config.shortBreakDuration} min).`, 'Start Break', 'Skip Break')
+            .showInformationMessage(`Pomodoro complete! Time for a ${breakLabel} (${isLongBreak ? config.longBreakDuration : config.shortBreakDuration} min).`, "Start Break", "Skip Break")
             .then((selection) => {
-            if (selection === 'Start Break') {
+            if (selection === "Start Break") {
                 this.startBreak(breakType, breakDuration, newCompletedSessions);
             }
-            else if (selection === 'Skip Break') {
+            else if (selection === "Skip Break") {
                 this.session.completedSessions = newCompletedSessions;
                 this.reset();
             }
@@ -340,7 +342,7 @@ class TimerEngine {
         });
         // Update session to idle while waiting for user response
         this.session = {
-            ...types_1.DEFAULT_SESSION,
+            ...constants_1.DEFAULT_SESSION,
             completedSessions: newCompletedSessions,
         };
         this.persist();
@@ -351,7 +353,7 @@ class TimerEngine {
      */
     startBreak(breakType, duration, completedSessions) {
         this.session = {
-            state: 'break',
+            state: "break",
             expectedEndTime: Date.now() + duration,
             remainingTimeOnPause: null,
             totalDuration: duration,
@@ -369,14 +371,14 @@ class TimerEngine {
         this.stopUpdateLoop();
         (0, sound_1.playCompletionSound)();
         vscode.window
-            .showInformationMessage('Break complete! Ready to start another Pomodoro?', 'Start Work', 'Not Now')
+            .showInformationMessage("Break complete! Ready to start another Pomodoro?", "Start Work", "Not Now")
             .then((selection) => {
-            if (selection === 'Start Work') {
+            if (selection === "Start Work") {
                 this.start();
             }
         });
         this.session = {
-            ...types_1.DEFAULT_SESSION,
+            ...constants_1.DEFAULT_SESSION,
             completedSessions: this.session.completedSessions,
         };
         this.persist();
@@ -412,10 +414,11 @@ class TimerEngine {
         const remaining = this.session.expectedEndTime - now;
         if (remaining <= 0) {
             // Session complete
-            if (this.session.state === 'running' && this.session.sessionType === 'work') {
+            if (this.session.state === "running" &&
+                this.session.sessionType === "work") {
                 this.handleSessionComplete();
             }
-            else if (this.session.state === 'break') {
+            else if (this.session.state === "break") {
                 this.handleBreakComplete();
             }
         }
@@ -429,7 +432,7 @@ class TimerEngine {
      */
     updateUI() {
         let remaining;
-        if (this.session.state === 'paused' && this.session.remainingTimeOnPause) {
+        if (this.session.state === "paused" && this.session.remainingTimeOnPause) {
             remaining = this.session.remainingTimeOnPause;
         }
         else if (this.session.expectedEndTime) {

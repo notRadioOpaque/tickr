@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DEFAULT_SESSIONS_BEFORE_LONG_BREAK = exports.DEFAULT_LONG_BREAK_DURATION = exports.DEFAULT_SHORT_BREAK_DURATION = exports.DEFAULT_WORK_DURATION = exports.STORAGE_KEY = exports.SEPARATOR_RIGHT = exports.SEPARATOR_LEFT = exports.STATUS_BAR_PRIORITY = exports.UPDATE_INTERVAL_MS = exports.PROGRESS_BAR_LENGTH = exports.EMPTY_BLOCK = exports.FILLED_BLOCK = void 0;
-exports.minutesToMs = minutesToMs;
-exports.formatTime = formatTime;
-exports.generateProgressBar = generateProgressBar;
+exports.DEFAULT_SESSION = exports.DEFAULT_SESSIONS_BEFORE_LONG_BREAK = exports.DEFAULT_LONG_BREAK_DURATION = exports.DEFAULT_SHORT_BREAK_DURATION = exports.DEFAULT_WORK_DURATION = exports.STORAGE_KEY = exports.SEPARATOR_RIGHT = exports.SEPARATOR_LEFT = exports.STATUS_BAR_PRIORITY = exports.UPDATE_INTERVAL_MS = exports.PROGRESS_BAR_LENGTH = exports.EMPTY_BLOCK = exports.FILLED_BLOCK = void 0;
 /**
  * Unicode characters for the progress bar (minimalist line style)
  */
@@ -34,33 +31,19 @@ exports.STORAGE_KEY = "pomodoroSession";
 /**
  * Default durations in minutes
  */
-exports.DEFAULT_WORK_DURATION = 25;
+exports.DEFAULT_WORK_DURATION = 45;
 exports.DEFAULT_SHORT_BREAK_DURATION = 5;
-exports.DEFAULT_LONG_BREAK_DURATION = 10;
+exports.DEFAULT_LONG_BREAK_DURATION = 15;
 exports.DEFAULT_SESSIONS_BEFORE_LONG_BREAK = 4;
 /**
- * Convert minutes to milliseconds
+ * Default session state
  */
-function minutesToMs(minutes) {
-    return minutes * 60 * 1000;
-}
-/**
- * Format milliseconds as MM:SS
- */
-function formatTime(ms) {
-    const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
-/**
- * Generate a progress bar string
- * @param progress - Value between 0 and 1
- */
-function generateProgressBar(progress) {
-    const clampedProgress = Math.max(0, Math.min(1, progress));
-    const filledCount = Math.round(clampedProgress * exports.PROGRESS_BAR_LENGTH);
-    const emptyCount = exports.PROGRESS_BAR_LENGTH - filledCount;
-    return exports.FILLED_BLOCK.repeat(filledCount) + exports.EMPTY_BLOCK.repeat(emptyCount);
-}
+exports.DEFAULT_SESSION = {
+    state: "idle",
+    expectedEndTime: null,
+    remainingTimeOnPause: null,
+    totalDuration: 25 * 60 * 1000, // 25 minutes in ms
+    sessionType: "work",
+    completedSessions: 0,
+};
 //# sourceMappingURL=constants.js.map
