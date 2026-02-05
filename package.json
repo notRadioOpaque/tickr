@@ -1,0 +1,86 @@
+{
+  "name": "tickr",
+  "displayName": "Tickr",
+  "description": "A state-first Pomodoro timer with visual progress bar in the status bar",
+  "version": "0.0.1",
+  "publisher": "tickr",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "timer"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pomodoro.toggle",
+        "title": "Pomodoro: Toggle Timer (Start/Pause/Resume)"
+      },
+      {
+        "command": "pomodoro.skip",
+        "title": "Pomodoro: Skip Current Session"
+      },
+      {
+        "command": "pomodoro.reset",
+        "title": "Pomodoro: Reset Timer"
+      },
+      {
+        "command": "pomodoro.stop",
+        "title": "Pomodoro: Stop Session"
+      },
+      {
+        "command": "pomodoro.startCustom",
+        "title": "Pomodoro: Start with Custom Duration"
+      },
+      {
+        "command": "pomodoro.showMenu",
+        "title": "Pomodoro: Show Start Menu"
+      }
+    ],
+    "configuration": {
+      "title": "Tickr",
+      "properties": {
+        "pomodoro.workDuration": {
+          "type": "number",
+          "default": 45,
+          "description": "Work session duration in minutes"
+        },
+        "pomodoro.shortBreakDuration": {
+          "type": "number",
+          "default": 5,
+          "description": "Short break duration in minutes"
+        },
+        "pomodoro.longBreakDuration": {
+          "type": "number",
+          "default": 15,
+          "description": "Long break duration in minutes"
+        },
+        "pomodoro.sessionsBeforeLongBreak": {
+          "type": "number",
+          "default": 4,
+          "description": "Number of work sessions before a long break"
+        },
+        "pomodoro.enableSounds": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play sound on session completion or cancellation"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.x",
+    "typescript": "^5.3.0"
+  }
+}
