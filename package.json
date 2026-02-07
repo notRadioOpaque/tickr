@@ -4,6 +4,10 @@
   "description": "A state-first Pomodoro timer with visual progress bar in the status bar",
   "version": "0.0.1",
   "publisher": "notradioopaque",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/notradioopaque/tickr"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -13,6 +17,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
+  "icon": "tickr.png",
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
