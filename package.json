@@ -3,12 +3,12 @@
   "displayName": "Tickr",
   "description": "A state-first Pomodoro timer with visual progress bar in the status bar",
   "version": "0.0.1",
-  "publisher": "tickr",
+  "publisher": "notradioopaque",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "timer"
+    "Other"
   ],
   "activationEvents": [
     "onStartupFinished"
