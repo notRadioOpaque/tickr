@@ -1,19 +1,35 @@
 {
   "name": "tickr",
   "displayName": "Tickr",
-  "description": "A state-first Pomodoro timer with visual progress bar in the status bar",
+  "description": "A minimal Pomodoro timer for VS Code with a visual status bar progress indicator.",
   "version": "0.0.1",
   "publisher": "notradioopaque",
+  "license": "MIT",
+  "homepage": "https://github.com/notradioopaque/tickr",
+  "bugs": {
+    "url": "https://github.com/notradioopaque/tickr/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/notradioopaque/tickr"
   },
+  "keywords": [
+    "pomodoro",
+    "timer",
+    "focus",
+    "productivity",
+    "statusbar"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Productivity"
   ],
+  "galleryBanner": {
+    "color": "#111111",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -23,27 +39,33 @@
     "commands": [
       {
         "command": "pomodoro.toggle",
-        "title": "Pomodoro: Toggle Timer (Start/Pause/Resume)"
+        "title": "Toggle Timer (Start/Pause/Resume)",
+        "category": "Tickr"
       },
       {
         "command": "pomodoro.skip",
-        "title": "Pomodoro: Skip Current Session"
+        "title": "Skip Current Session",
+        "category": "Tickr"
       },
       {
         "command": "pomodoro.reset",
-        "title": "Pomodoro: Reset Timer"
+        "title": "Reset Timer",
+        "category": "Tickr"
       },
       {
         "command": "pomodoro.stop",
-        "title": "Pomodoro: Stop Session"
+        "title": "Stop Session",
+        "category": "Tickr"
       },
       {
         "command": "pomodoro.startCustom",
-        "title": "Pomodoro: Start with Custom Duration"
+        "title": "Start with Custom Duration",
+        "category": "Tickr"
       },
       {
         "command": "pomodoro.showMenu",
-        "title": "Pomodoro: Show Start Menu"
+        "title": "Show Start Menu",
+        "category": "Tickr"
       }
     ],
     "configuration": {
